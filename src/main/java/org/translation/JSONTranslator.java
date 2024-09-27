@@ -19,7 +19,6 @@ import org.json.JSONObject;
 public class JSONTranslator implements Translator {
 
     // ODO Task: pick appropriate instance variables for this class
-    private static final String CODE_KEY = "code";
     private final List<String> countries;
     private final Map<String, List<String>> countryLanguages;
     private final Map<String, Map<String, String>> translations;
@@ -45,14 +44,12 @@ public class JSONTranslator implements Translator {
         try {
 
             String jsonString = Files.readString(Paths.get(getClass().getClassLoader().getResource(filename).toURI()));
-
             JSONArray jsonArray = new JSONArray(jsonString);
 
-            // ODO Task: use the data in the jsonArray to populate your instance variables
-            //            Note: this will likely be one of the most substantial pieces of code you write in this lab.
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject countryObject = jsonArray.getJSONObject(i);
-                String countryCode = countryObject.getString("code");
+
+                String countryCode = countryObject.getString("alpha3");
                 countries.add(countryCode);
 
                 JSONArray languages = countryObject.names();
@@ -60,7 +57,8 @@ public class JSONTranslator implements Translator {
                 Map<String, String> translationMap = new HashMap<>();
                 for (int j = 0; j < languages.length(); j++) {
                     String languageCode = languages.getString(j);
-                    if (!languageCode.equals(CODE_KEY)) {
+                    if (!languageCode.equals("alpha2") && !languageCode.equals("alpha3")
+                            && !languageCode.equals("id")) {
                         languagesList.add(languageCode);
                         translationMap.put(languageCode, countryObject.getString(languageCode));
                     }

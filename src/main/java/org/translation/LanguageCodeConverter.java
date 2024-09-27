@@ -14,8 +14,9 @@ import java.util.Map;
 public class LanguageCodeConverter {
 
     // ODO Task: pick appropriate instance variables to store the data necessary for this class
-    private Map<String, String> languageMap;
-    private int numLanguages;
+    private Map<String, String> codeToLanguageMap;
+    private Map<String, String> languageToCodeMap;
+
     /**
      * Default constructor which will load the language codes from "language-codes.txt"
      * in the resources folder.
@@ -31,21 +32,28 @@ public class LanguageCodeConverter {
      * @throws RuntimeException if the resource file can't be loaded properly
      */
     public LanguageCodeConverter(String filename) {
-        languageMap = new HashMap<>();
-        numLanguages = 0;
+        codeToLanguageMap = new HashMap<>();
+        languageToCodeMap = new HashMap<>();
+
         try {
             List<String> lines = Files.readAllLines(Paths.get(getClass()
                     .getClassLoader().getResource(filename).toURI()));
 
             // ODO Task: use lines to populate the instance variable
             //           tip: you might find it convenient to create an iterator using lines.iterator()
+            // Skip the header row
+            lines.remove(0);
+
+            // Process each line
             for (String line : lines) {
-                String[] parts = line.split(":");
+                // Split by tab character, assuming tab-separated values
+                String[] parts = line.split("\t");
                 if (parts.length == 2) {
-                    String code = parts[0].trim();
-                    String language = parts[1].trim();
-                    languageMap.put(code, language);
-                    numLanguages++;
+                    String language = parts[0].trim();
+                    String code = parts[1].trim().toLowerCase();
+
+                    codeToLanguageMap.put(code, language);
+                    languageToCodeMap.put(language.toLowerCase(), code);
                 }
             }
         }
@@ -61,7 +69,8 @@ public class LanguageCodeConverter {
      * @return the name of the language corresponding to the code
      */
     public String fromLanguageCode(String code) {
-        return languageMap.getOrDefault(code, "Unknown language code");
+        return codeToLanguageMap.getOrDefault(code.toLowerCase(),
+                "Unknown language code");
     }
 
     /**
@@ -70,12 +79,8 @@ public class LanguageCodeConverter {
      * @return the 2-letter code of the language
      */
     public String fromLanguage(String language) {
-        for (Map.Entry<String, String> entry : languageMap.entrySet()) {
-            if (entry.getValue().equalsIgnoreCase(language)) {
-                return entry.getKey();
-            }
-        }
-        return "Unknown language";
+        return languageToCodeMap.getOrDefault(language.toLowerCase(),
+                "Unknown language");
     }
 
     /**
@@ -83,6 +88,6 @@ public class LanguageCodeConverter {
      * @return how many languages are included in this code converter.
      */
     public int getNumLanguages() {
-        return numLanguages;
+        return codeToLanguageMap.size();
     }
 }

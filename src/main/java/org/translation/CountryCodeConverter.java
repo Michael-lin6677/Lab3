@@ -38,12 +38,14 @@ public class CountryCodeConverter {
                     .getClassLoader().getResource(filename).toURI()));
 
             // TODO Task: use lines to populate the instance variable(s)
+            lines.remove(0);
+
             for (String line : lines) {
-                // Assuming the file has lines in the format: code,country_name
-                String[] parts = line.split(",");
-                if (parts.length == 2) {
-                    String code = parts[0].trim();
-                    String country = parts[1].trim();
+
+                String[] parts = line.split("\t");
+                if (parts.length >= 3) {
+                    String country = parts[0].trim();
+                    String code = parts[2].trim().toLowerCase();
 
                     codeToCountryMap.put(code, country);
                     countryToCodeMap.put(country, code);
@@ -53,7 +55,6 @@ public class CountryCodeConverter {
         catch (IOException | URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
-
     }
 
     /**
@@ -63,7 +64,8 @@ public class CountryCodeConverter {
      */
     public String fromCountryCode(String code) {
         // TODO Task: update this code to use an instance variable to return the correct value
-        return codeToCountryMap.getOrDefault(code, "Unknown country");
+        return codeToCountryMap.getOrDefault(code.toLowerCase(),
+                "Unknown country");
     }
 
     /**
